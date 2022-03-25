@@ -3,7 +3,7 @@ on: [push]
 
 jobs: 
   steps:
-  - uses: exoGitHubActions/create-issue-action@v1.1
+  - uses: medion65/create-issue-action@v1.1
     if: ${{ failure() }} # only run when this job is failed
     name: Create Issue Action
     with:
