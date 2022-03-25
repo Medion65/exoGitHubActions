@@ -1,22 +1,12 @@
-name: Réalisation des tests unitaires
+name: tests
 on: [push]
 
-jobs: 
-  steps:
-  - uses: medion65/create-issue-action@v1.1
-    if: ${{ failure() }} # only run when this job is failed
-    name: Create Issue Action
-    with:
-      title: Worfklow Failed
-      token: ${{secrets.GITHUB_TOKEN}}
-      assignees: ${{github.actor}}
-      labels: refactoring-needed, help needed
-      body: Workflow failed for commit ${{github.sha}}
+jobs:
   exec:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
+        python-version: [ '2.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
     steps:
       - uses: actions/checkout@v3
       - name: Installation python
@@ -24,3 +14,20 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - name: Installation Python
+        uses: py-actions/py-dependency-install@v3
+        with:
+          path: "./requirements.txt"
+      - name: Lancer Application
+        run: pytest
+      - name: Create Issue on Failed workflow
+        if: ${{ failure() }}
+        uses: dacbd/create-issue-action@main
+        with:
+          token: ${{ github.token }}
+          title: Action workflow failed.
+          body: |
+            Workflow name - `${{ github.workflow }}`
+            Job -           `${{ github.job }}`
+            status -        `${{ job.status }}`
+        
